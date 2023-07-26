@@ -89,5 +89,25 @@ export class CPUProfileWebpackPlugin {
         logger.error(`CPU Profile plugine encountered an error: ${e}`);
       }
     });
+
+    // Start profiling when the watchRun hook is triggered
+    webpackCompiler.hooks.watchDone.tapPromise(PluginName, async () => {
+      await profileStartPromise;
+
+      try {
+        const profile =
+          (await cpuProfilerStop()) as inspector.Profiler.StopReturnType;
+
+        if (!profile) {
+          throw new Error("output did not contain profile information");
+        }
+
+        await writeFile(outputPath!, JSON.stringify(profile.profile));
+        logger.info(`CPU Profile written to: ${outputPath}`);
+      } catch (e) {
+        logger.error(`CPU Profile plugine encountered an error: ${e}`);
+      }
+    });
+
   }
 }
