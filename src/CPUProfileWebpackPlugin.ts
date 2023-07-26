@@ -44,7 +44,7 @@ export class CPUProfileWebpackPlugin {
       outputPath = path.resolve(compilationOutputPath, "webpack.cpuprofile");
     }
 
-    logger.info(`Starting CPU Profile: ${this.profileName}`);
+    logger.log(`Starting CPU Profile: ${this.profileName}`);
     const cpuProfilerEnable = promisify(
       this.session.post.bind<inspector.Session, "Profiler.enable", never, void>(
         this.session,
