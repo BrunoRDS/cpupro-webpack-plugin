@@ -44,7 +44,6 @@ export class CPUProfileWebpackPlugin {
       outputPath = path.resolve(compilationOutputPath, "webpack.cpuprofile");
     }
 
-    // Start profiling as soon as this plugin is applied
     logger.info(`Starting CPU Profile: ${this.profileName}`);
     const cpuProfilerEnable = promisify(
       this.session.post.bind<inspector.Session, "Profiler.enable", never, void>(
@@ -71,7 +70,6 @@ export class CPUProfileWebpackPlugin {
       return cpuProfilerStart();
     });
 
-    // Stop profiling when the entire webpack run is done
     webpackCompiler.hooks.done.tapPromise(PluginName, async () => {
       await profileStartPromise;
 
@@ -90,7 +88,10 @@ export class CPUProfileWebpackPlugin {
       }
     });
 
-    // Start profiling when the watchRun hook is triggered
+    webpackCompiler.hooks.watchRun.tapPromise(PluginName, async () => {
+      await profileStartPromise;
+    });
+
     webpackCompiler.hooks.watchDone.tapPromise(PluginName, async () => {
       await profileStartPromise;
 
