@@ -67,7 +67,12 @@ export class CPUProfileWebpackPlugin {
     );
 
     const profileStartPromise = cpuProfilerEnable().then(() => {
-      return cpuProfilerStart();
+      try{
+        return cpuProfilerStart();
+      } catch (e) {
+        logger.error(`CPU Profile plugine encountered an error: ${e}`);
+      }
+
     });
 
     webpackCompiler.hooks.done.tapPromise(PluginName, async () => {
@@ -89,26 +94,27 @@ export class CPUProfileWebpackPlugin {
     });
 
     webpackCompiler.hooks.watchRun.tapPromise(PluginName, async () => {
+      logger.info(`Starting CPU Profile: ${this.profileName}`);
       await profileStartPromise;
     });
 
-    webpackCompiler.hooks.watchClose.tapPromise(PluginName, async () => {
-      await profileStartPromise;
+    // webpackCompiler.hooks.watchClose.tapPromise(PluginName, async () => {
+    //   await profileStartPromise;
 
-      try {
-        const profile =
-          (await cpuProfilerStop()) as inspector.Profiler.StopReturnType;
+    //   try {
+    //     const profile =
+    //       (await cpuProfilerStop()) as inspector.Profiler.StopReturnType;
 
-        if (!profile) {
-          throw new Error("output did not contain profile information");
-        }
+    //     if (!profile) {
+    //       throw new Error("output did not contain profile information");
+    //     }
 
-        await writeFile(outputPath!, JSON.stringify(profile.profile));
-        logger.info(`CPU Profile written to: ${outputPath}`);
-      } catch (e) {
-        logger.error(`CPU Profile plugine encountered an error: ${e}`);
-      }
-    });
+    //     await writeFile(outputPath!, JSON.stringify(profile.profile));
+    //     logger.info(`CPU Profile written to: ${outputPath}`);
+    //   } catch (e) {
+    //     logger.error(`CPU Profile plugine encountered an error: ${e}`);
+    //   }
+    // });
 
   }
 }
