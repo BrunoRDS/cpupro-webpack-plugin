@@ -92,7 +92,7 @@ export class CPUProfileWebpackPlugin {
       await profileStartPromise;
     });
 
-    webpackCompiler.hooks.watchDone.tapPromise(PluginName, async () => {
+    webpackCompiler.hooks.watchClose.tapPromise(PluginName, async () => {
       await profileStartPromise;
 
       try {
